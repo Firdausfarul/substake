@@ -3,3 +3,5 @@
 	url = https://github.com/aave/aave-v3-core
 [submodule "lib/openzeppelin-contracts"]
 	path = lib/openzeppelin-contracts
+[submodule "lib/forge-std"]
+	path = lib/forge-std

@@ -1,66 +1,24 @@
-## Foundry
+# SubStake
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+ Paystream that handles rebasing interest bearing token like Aave aTokens and lido stETH, that enable depositors to earn interest on their deposit. So depositor can create a payment stream that entirely/partially funded by the interest earned on their deposit.
 
-Foundry consists of:
+## Deployments :
 
--   **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
--   **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
--   **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
--   **Chisel**: Fast, utilitarian, and verbose solidity REPL.
+- Sepolia - USDC [0x35fc8926A8Ff15FC6652D75DAF4aB9374452c52B](https://etherscan.io/address/0x35fc8926A8Ff15FC6652D75DAF4aB9374452c52B)
 
-## Documentation
+## Created by :
+Fachrudin
 
-https://book.getfoundry.sh/
+## How to deploy :
 
-## Usage
+1. replace the relevant address in `script/DeploySubStake.s.sol` with token addresss / aave implementation on your chosen chain.
 
-### Build
-
-```shell
-$ forge build
+2. set the private key as env variable and run 
+```bash
+forge script script/DeploySubStake.s.sol:DeploySubStake --rpc-url [YOUR_RPC] --broadcast -vvvv 
 ```
 
-### Test
+## Frontend 
+Coming soon
 
-```shell
-$ forge test
-```
 
-### Format
-
-```shell
-$ forge fmt
-```
-
-### Gas Snapshots
-
-```shell
-$ forge snapshot
-```
-
-### Anvil
-
-```shell
-$ anvil
-```
-
-### Deploy
-
-```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
-```
-
-### Cast
-
-```shell
-$ cast <subcommand>
-```
-
-### Help
-
-```shell
-$ forge --help
-$ anvil --help
-$ cast --help
-```
