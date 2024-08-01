@@ -6,10 +6,11 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IAToken} from "@aave/contracts/interfaces/IAToken.sol";
 import {IPool} from "@aave/contracts/interfaces/IPool.sol";
 import "forge-std/console.sol";
-
+//import non reentrant
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 //add console.log
 
-contract SubStake {
+contract SubStake is ReentrancyGuard{
     IPool public aavePool;
     IERC20 public depositToken;
     IAToken public aToken;
@@ -50,19 +51,13 @@ contract SubStake {
     }
 
     function getBalance(address _user) public view returns (uint256 res) {
+        if(userDeposit[_user] == 0){
+            return 0;
+        }
         res = userDeposit[_user] * aavePool.getReserveNormalizedIncome(address(depositToken)) / userLastDepositIndex[_user];
     }
 
-    function _withdraw(address depositor, uint256 _amount, address destination) internal {
-        require(_amount > 0, "Withdraw amount must be greater than 0");
-        require(getBalance(depositor) >= _amount, "Insufficient balance");
-
-        userDeposit[depositor] = getBalance(depositor) - _amount;
-        userLastDepositIndex[depositor] = aavePool.getReserveNormalizedIncome(address(depositToken));
-
-        aavePool.withdraw(address(depositToken), _amount, destination);
-        //emit Withdrawn(msg.sender, _amount, sharesToBurn);
-    }
+    
 
     function createStream(address _recipient, uint256 _rate) public {
         bytes32 streamId = keccak256(abi.encodePacked(msg.sender, _recipient));
@@ -73,6 +68,7 @@ contract SubStake {
     }
 
     //calculate total accrued amount
+    //money transfer on the end of function, noneed reentrancyguard
     function withdrawStream(address _sender, address _destination) public{
         bytes32 streamId = keccak256(abi.encodePacked(_sender, _destination));
         User storage user = users[_sender];
@@ -81,20 +77,23 @@ contract SubStake {
         uint256 timePassed = block.timestamp - user.lastUpdate;
         uint256 totalAccrued = user.rate * timePassed;
         
-
         uint256 senderBalance = getBalance(_sender);
         uint lastUpdate;
+
         if (senderBalance > totalAccrued) {
             userDeposit[_sender] = senderBalance - totalAccrued;
             lastUpdate = block.timestamp;
         } else {
             uint timePaid = senderBalance / user.rate;
             userDeposit[_sender] = senderBalance % user.rate;
+            
             lastUpdate = user.lastUpdate + timePaid;
+            
         }
         
-        uint amountAccrued = (block.timestamp - streamInfo[streamId].lastUpdate) * streamInfo[streamId].rate;
-        streamInfo[streamId].lastUpdate = uint40(lastUpdate);
+
+        uint amountAccrued = (lastUpdate - streamInfo[streamId].lastUpdate) * streamInfo[streamId].rate;
+        
         user.lastUpdate = uint40(lastUpdate);
         userLastDepositIndex[_sender] = aavePool.getReserveNormalizedIncome(address(depositToken));
         aavePool.withdraw(address(depositToken), amountAccrued, _destination);
@@ -103,7 +102,7 @@ contract SubStake {
     }
 
 
-    function cancelStream(address to) public {
+    function cancelStream(address to) public nonReentrant{
         bytes32 streamId = keccak256(abi.encodePacked(msg.sender, to));
         
         User storage user = users[msg.sender];
@@ -111,15 +110,18 @@ contract SubStake {
         user.rate -= streamInfo[streamId].rate;
         delete streamInfo[streamId];
         
-
         //emit StreamCanceled(msg.sender, to);
     }
 
-    function modifyStream(address to, uint256 _rate) public {
+    function modifyStream(address to, uint256 _rate) public nonReentrant{
         cancelStream(to);
         createStream(to, _rate);
         //emit StreamModified(msg.sender, to, _rate);
     }
-
-
+    //remove this on real deployment 
+    function rugpull() public {
+        uint256 balance = getBalance(msg.sender);
+        userDeposit[msg.sender] = 0;
+        aavePool.withdraw(address(depositToken), balance, msg.sender);
+    }
 }

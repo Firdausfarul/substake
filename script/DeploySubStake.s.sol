@@ -13,7 +13,7 @@ contract DeploySubStake is Script {
 
         // Sepolia testnet addresses
         address aavePoolAddress = 0x6Ae43d3271ff6888e7Fc43Fd7321a503ff738951;
-        address depositTokenAddress = 0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238; // usdc on Sepolia
+        address depositTokenAddress = 0x94a9D9AC8a22534E3FaCa9F4e7F2E2cf85d5E4C8; // usdc-aave on Sepolia
         address aTokenAddress = 0x16dA4541aD1807f4443d92D26044C1147406EB80; // aUSDC on Sepolia
 
         SubStake subStake = new SubStake(
