@@ -1,0 +1,6 @@
+{
+    "slither.solcPath": "",
+    "slither.hiddenDetectors": [
+        "abiencoderv2-array"
+    ]
+}

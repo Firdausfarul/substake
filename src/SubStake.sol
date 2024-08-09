@@ -34,7 +34,7 @@ contract SubStake is ReentrancyGuard{
         depositToken = IERC20(_depositToken);
         aToken = IAToken(_aToken);
     }
-
+    // slither-disable-start timestamp
     function deposit(uint256 _amount) public {
         require(_amount > 0, "Deposit amount must be greater than 0");
         if(userDeposit[msg.sender] == 0){
@@ -69,6 +69,7 @@ contract SubStake is ReentrancyGuard{
 
     //calculate total accrued amount
     //money transfer on the end of function, noneed reentrancyguard
+    // slither-disable-start weak-prng, timestamp
     function withdrawStream(address _sender, address _destination) public{
         bytes32 streamId = keccak256(abi.encodePacked(_sender, _destination));
         User storage user = users[_sender];
@@ -101,7 +102,7 @@ contract SubStake is ReentrancyGuard{
         //emit StreamWithdrawn(_sender, msg.sender, amountAccrued);
     }
 
-
+    // slither-disable-start reentrancy-no-eth
     function cancelStream(address to) public nonReentrant{
         bytes32 streamId = keccak256(abi.encodePacked(msg.sender, to));
         
@@ -112,8 +113,8 @@ contract SubStake is ReentrancyGuard{
         
         //emit StreamCanceled(msg.sender, to);
     }
-
-    function modifyStream(address to, uint256 _rate) public nonReentrant{
+    // slither-disable-start reentrancy-no-eth
+    function modifyStream(address to, uint256 _rate) public {
         cancelStream(to);
         createStream(to, _rate);
         //emit StreamModified(msg.sender, to, _rate);

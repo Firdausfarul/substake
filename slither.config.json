@@ -1,0 +1,9 @@
+{
+    "filter_paths": "lib",
+    "solc_remaps": [
+        "@openzeppelin/=lib/openzeppelin-contracts/",
+        "ds-test/=lib/ds-test/src/",
+        "forge-std/=lib/forge-std/src/",
+        "@aave/=lib/aave-v3-core/"
+    ]
+}
